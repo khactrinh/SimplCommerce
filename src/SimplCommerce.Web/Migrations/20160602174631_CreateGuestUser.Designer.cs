@@ -7,7 +7,7 @@ using SimplCommerce.Core.Infrastructure.EntityFramework;
 
 namespace SimplCommerce.Web.Migrations
 {
-    [DbContext(typeof(HvDbContext))]
+    [DbContext(typeof(SimplDbContext))]
     [Migration("20160602174631_CreateGuestUser")]
     partial class CreateGuestUser
     {

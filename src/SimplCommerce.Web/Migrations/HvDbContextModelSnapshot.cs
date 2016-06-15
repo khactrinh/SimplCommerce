@@ -7,7 +7,7 @@ using SimplCommerce.Core.Infrastructure.EntityFramework;
 
 namespace SimplCommerce.Web.Migrations
 {
-    [DbContext(typeof(HvDbContext))]
+    [DbContext(typeof(SimplDbContext))]
     partial class HvDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -284,9 +284,13 @@ namespace SimplCommerce.Web.Migrations
 
                     b.Property<int>("DisplayOrder");
 
+                    b.Property<bool>("HasOptions");
+
                     b.Property<bool>("IsDeleted");
 
                     b.Property<bool>("IsPublished");
+
+                    b.Property<bool>("IsVisibleIndividually");
 
                     b.Property<string>("MetaDescription");
 
@@ -305,6 +309,8 @@ namespace SimplCommerce.Web.Migrations
                     b.Property<string>("SeoTitle");
 
                     b.Property<string>("ShortDescription");
+
+                    b.Property<string>("Sku");
 
                     b.Property<string>("Specification");
 
@@ -397,6 +403,26 @@ namespace SimplCommerce.Web.Migrations
                     b.ToTable("Core_ProductCategory");
                 });
 
+            modelBuilder.Entity("SimplCommerce.Core.Domain.Models.ProductLink", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("LinkType");
+
+                    b.Property<long>("LinkedProductId");
+
+                    b.Property<long>("ProductId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LinkedProductId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("Core_ProductLink");
+                });
+
             modelBuilder.Entity("SimplCommerce.Core.Domain.Models.ProductMedia", b =>
                 {
                     b.Property<long>("Id")
@@ -436,15 +462,17 @@ namespace SimplCommerce.Web.Migrations
 
                     b.Property<long>("OptionId");
 
-                    b.Property<string>("Value");
+                    b.Property<long>("ProducdtId");
 
-                    b.Property<long>("VariationId");
+                    b.Property<long?>("ProductId");
+
+                    b.Property<string>("Value");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OptionId");
 
-                    b.HasIndex("VariationId");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("Core_ProductOptionCombination");
                 });
@@ -495,48 +523,6 @@ namespace SimplCommerce.Web.Migrations
                     b.HasIndex("ProductTemplateId");
 
                     b.ToTable("Core_ProductTemplateProductAttribute");
-                });
-
-            modelBuilder.Entity("SimplCommerce.Core.Domain.Models.ProductVariation", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<long?>("CreatedById");
-
-                    b.Property<DateTime>("CreatedOn");
-
-                    b.Property<int>("DisplayOrder");
-
-                    b.Property<bool>("IsAllowOrder");
-
-                    b.Property<bool>("IsDeleted");
-
-                    b.Property<bool>("IsPublished");
-
-                    b.Property<string>("Name");
-
-                    b.Property<decimal>("PriceOffset");
-
-                    b.Property<long>("ProductId");
-
-                    b.Property<string>("ReasonNotAllowOrder");
-
-                    b.Property<string>("Sku");
-
-                    b.Property<long?>("UpdatedById");
-
-                    b.Property<DateTime>("UpdatedOn");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("UpdatedById");
-
-                    b.ToTable("Core_ProductVariation");
                 });
 
             modelBuilder.Entity("SimplCommerce.Core.Domain.Models.Role", b =>
@@ -725,8 +711,6 @@ namespace SimplCommerce.Web.Migrations
 
                     b.Property<long>("ProductId");
 
-                    b.Property<long?>("ProductVariationId");
-
                     b.Property<int>("Quantity");
 
                     b.Property<long>("UserId");
@@ -734,8 +718,6 @@ namespace SimplCommerce.Web.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("ProductVariationId");
 
                     b.HasIndex("UserId");
 
@@ -783,8 +765,6 @@ namespace SimplCommerce.Web.Migrations
 
                     b.Property<decimal>("ProductPrice");
 
-                    b.Property<long?>("ProductVariationId");
-
                     b.Property<int>("Quantity");
 
                     b.HasKey("Id");
@@ -792,8 +772,6 @@ namespace SimplCommerce.Web.Migrations
                     b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("ProductVariationId");
 
                     b.ToTable("Orders_OrderItem");
                 });
@@ -929,6 +907,17 @@ namespace SimplCommerce.Web.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("SimplCommerce.Core.Domain.Models.ProductLink", b =>
+                {
+                    b.HasOne("SimplCommerce.Core.Domain.Models.Product")
+                        .WithMany()
+                        .HasForeignKey("LinkedProductId");
+
+                    b.HasOne("SimplCommerce.Core.Domain.Models.Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId");
+                });
+
             modelBuilder.Entity("SimplCommerce.Core.Domain.Models.ProductMedia", b =>
                 {
                     b.HasOne("SimplCommerce.Core.Domain.Models.Media")
@@ -949,10 +938,9 @@ namespace SimplCommerce.Web.Migrations
                         .HasForeignKey("OptionId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("SimplCommerce.Core.Domain.Models.ProductVariation")
+                    b.HasOne("SimplCommerce.Core.Domain.Models.Product")
                         .WithMany()
-                        .HasForeignKey("VariationId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ProductId");
                 });
 
             modelBuilder.Entity("SimplCommerce.Core.Domain.Models.ProductOptionValue", b =>
@@ -979,22 +967,6 @@ namespace SimplCommerce.Web.Migrations
                         .WithMany()
                         .HasForeignKey("ProductTemplateId")
                         .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("SimplCommerce.Core.Domain.Models.ProductVariation", b =>
-                {
-                    b.HasOne("SimplCommerce.Core.Domain.Models.User")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.HasOne("SimplCommerce.Core.Domain.Models.Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("SimplCommerce.Core.Domain.Models.User")
-                        .WithMany()
-                        .HasForeignKey("UpdatedById");
                 });
 
             modelBuilder.Entity("SimplCommerce.Core.Domain.Models.StateOrProvince", b =>
@@ -1031,10 +1003,6 @@ namespace SimplCommerce.Web.Migrations
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("SimplCommerce.Core.Domain.Models.ProductVariation")
-                        .WithMany()
-                        .HasForeignKey("ProductVariationId");
-
                     b.HasOne("SimplCommerce.Core.Domain.Models.User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -1068,10 +1036,6 @@ namespace SimplCommerce.Web.Migrations
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("SimplCommerce.Core.Domain.Models.ProductVariation")
-                        .WithMany()
-                        .HasForeignKey("ProductVariationId");
                 });
         }
     }

@@ -14,13 +14,21 @@ namespace SimplCommerce.Core.Domain.Models
 
         public decimal? OldPrice { get; set; }
 
+        public bool HasOptions { get; set; }
+
+        public bool IsVisibleIndividually { get; set; }
+
+        public string Sku { get; set; }
+
         public int DisplayOrder { get; set; }
 
         public virtual Media ThumbnailImage { get; set; }
 
         public virtual IList<ProductMedia> Medias { get; protected set; } = new List<ProductMedia>();
 
-        public virtual IList<ProductVariation> Variations { get; protected set; } = new List<ProductVariation>();
+        public virtual IList<ProductLink> ProductLinks { get; protected set; } = new List<ProductLink>();
+
+        public virtual IList<ProductLink> LinkedProductLinks { get; protected set; } = new List<ProductLink>();
 
         public virtual IList<ProductAttributeValue> AttributeValues { get; protected set; } = new List<ProductAttributeValue>();
 
@@ -62,10 +70,18 @@ namespace SimplCommerce.Core.Domain.Models
             OptionValues.Add(optionValue);
         }
 
-        public void AddProductVariation(ProductVariation variation)
+        public void AddProductLinks(ProductLink productLink)
         {
-            variation.Product = this;
-            Variations.Add(variation);
+            productLink.Product = this;
+            ProductLinks.Add(productLink);
+        }
+
+        public virtual IList<ProductOptionCombination> OptionCombinations { get; protected set; } = new List<ProductOptionCombination>();
+
+        public void AddOptionCombination(ProductOptionCombination combination)
+        {
+            combination.Product = this;
+            OptionCombinations.Add(combination);
         }
     }
 }
